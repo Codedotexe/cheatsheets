@@ -1,0 +1,83 @@
+# audible alarm when ip comes online
+ping -i 60 -a IP_address
+
+# quickly rename a file
+mv filename.{old,new}
+
+# Show File System Hierarchy
+man hier
+
+# Extract tarball from internet without local saving
+wget -qO - "http://www.tarball.com/tarball.gz" | tar zxvf -
+
+# view ram contents
+sudo dd if=/dev/mem | cat | strings
+
+# Print all found extensions in folder
+find -type f | grep -Po '\..+$' | sort | uniq -ic
+
+# Encrypt/Decrypt file with ssl
+openssl aes-256-cbc -in ~/File.jpg -out ~/Encrypted.file
+openssl aes-256-cbc -d -in ~/Encrypted.file -out ~/File.jpg
+
+# Render html as a pdf (needs a recent chromium version)
+chromium --headless --disable-gpu --run-all-compositor-stages-before-draw --print-to-pdf-no-header --print-to-pdf=out.pdf in.html
+
+# Change extensions of files
+for i in *.jpeg; do mv "$i" "${i%.jpeg}.jpg"; done
+
+# Enable globstar
+shopt -s globstar #For bash
+setopt -s globstarshort #For zsh
+
+# Find all txt files in a directory recursively (requires globstar)
+for i in **.txt; do echo "$i"; done
+
+# Delete txt files under 1M recurseivly
+find -type f -name '*.txt' -exec du -h -t -1M {} \; | grep -Po '\./.+$' | while read i; do rm "$i"; done
+
+# List pulse audiodevices for recording using ffmpeg
+ffmpeg -sources pulse
+
+# Record audio using ffmpeg
+ffmpeg -f pulse -i 'alsa_output.pci-0000_00_1f.3.analog-stereo.monitor' -b:a 64k -maxrate:a 128k -bufsize 1M vorlesung.opus
+
+# Concat video files matching regex
+find -regex '.+\.mp4$' | sort -V | sed "s/^/file '/; s/$/'/" > files.txt; ffmpeg -safe 0 -f concat -i files.txt -c copy OUT.mkv
+
+# Delete all portrait images
+find . -type f -exec identify \{\} \; | awk '{split($3,a,"x"); if (a[1] < a[2]) print $1}' | xargs rm
+
+# Delete all images  which are not 4K
+find . -type f -exec identify \{\} \; | awk '{split($3,a,"x"); if (a[1] < 3840 && a[2] < 2160) print $1}' | xargs rm
+
+# Execute batch youtube-dl commands concurrently with a thread-pool
+xargs -a links.txt -I CMD --max-procs=5 -t youtube-dl -o '%(uploader)s - %(title)s.%(ext)s' CMD >/dev/null 2>&1
+xargs -a links.txt -I CMD --max-procs=5 -t ytdl CMD >/dev/null 2>&1
+
+# Remove duplicate files
+fdupes
+
+# View System Utilization
+htop top btm iftop atop glances
+
+# view summed linecount of all py files in subfolders
+find . -type f -name '*.py' -exec cat {} + | wc -l
+
+# Add virtual pulseaudio output sink
+pactl load-module module-null-sink media.class=Audio/Sink sink_name=Dummy-Sink channel_map=surround-51
+pactl unload-module module-null-sink
+
+# Add network pulseaudio output sink
+pactl load-module module-native-protocol-tcp auth-anonymous=1
+pactl load-module module-tunnel-sink 'server=192.168.188.49 sink_name=rpi'
+pactl unload-module module-native-protocol-tcp
+
+# Compute vmaf
+ffmpeg -i ref.mp4 -i comp.mp4 -lavfi libvmaf=log_fmt=json -f null -
+
+# Compute vmaf (subsampling frames)
+ffmpeg -i ref.mp4 -i comp.mp4 -lavfi libvmaf=log_fmt=json:n_subsample=5 -f null -
+
+# Remove unicode character from file
+iconv -c -f utf-8 -t ascii input.txt > input-clean.txt
